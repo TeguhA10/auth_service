@@ -174,4 +174,25 @@ class AuthController extends Controller
                 $this->jwtService->forgetRefreshCookie()
             );
     }
+
+    public function me(Request $request): JsonResponse
+    {
+        try {
+            $token = $request->cookie('access_token');
+
+            $payload = $this->jwtService->decodeAccessToken($token);
+
+            $user = User::find($payload->sub);
+
+            return response()
+                ->json([
+                    'message' => 'user',
+                    'data' => $user
+                ]);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'message' => 'user not found',
+            ], 404);
+        }
+    }
 }
